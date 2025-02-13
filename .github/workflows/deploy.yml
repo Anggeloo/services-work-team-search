@@ -23,7 +23,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --build-arg ENV_FILE=.env -t ${{ secrets.DOCKER_USERNAME }}/work-team-search:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/work-team-search:latest .
           docker tag ${{ secrets.DOCKER_USERNAME }}/work-team-search:latest ${{ secrets.DOCKER_USERNAME }}/work-team-search:${{ github.sha }}
 
       - name: Push Docker image
@@ -45,7 +45,7 @@ jobs:
             # 1) Navigate to the directory where docker-compose.yml is located
             cd /home/ubuntu/
             
-            # 2) Create or update .env file
+            # 2) Create or update .env file with values from GitHub Secrets
             echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
             echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
             echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -53,11 +53,15 @@ jobs:
             echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
             echo "PORT=${{ secrets.PORT }}" >> .env
             
-            # 3) Pull the latest image from Docker Hub
+            # 3) Verify the .env file content
+            cat .env
+            
+            # 4) Pull the latest image from Docker Hub
             docker pull ${{ secrets.DOCKER_USERNAME }}/work-team-search:latest
             
-            # 4) Stop and remove previous containers
+            # 5) Stop and remove previous containers
             docker-compose down
             
-            # 5) Start new containers with the updated image
+            # 6) Start new containers with the updated image
             docker-compose up -d --remove-orphans
+
